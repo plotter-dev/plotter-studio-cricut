@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "version": "1.0.1",
+  "license": "CC0-1.0",
+  "id": "cricut.scoring-stylus",
+  "name": "Scoring stylus",
+  "family": "scoring",
+  "drive": "fixed_point",
+  "geometry": {
+    "tip_width_mm": 0.5
+  },
+  "operations": [
+    "score",
+    "deboss"
+  ],
+  "holders": [
+    "generic.holder-a",
+    "maker.adaptive-a"
+  ],
+  "parameters": {
+    "force": {
+      "type": "number",
+      "unit": "gf",
+      "min": 50,
+      "max": 600,
+      "default": 160
+    },
+    "speed": {
+      "type": "number",
+      "unit": "mm/s",
+      "min": 5,
+      "max": 300,
+      "default": 80
+    }
+  },
+  "render": {
+    "effect": "score"
+  }
+}

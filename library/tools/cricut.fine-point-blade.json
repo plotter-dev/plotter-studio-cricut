@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "version": "1.0.1",
+  "license": "CC0-1.0",
+  "id": "cricut.fine-point-blade",
+  "name": "Fine-point blade (45°)",
+  "family": "blade",
+  "drive": "drag",
+  "geometry": {
+    "blade_offset_mm": 0.25,
+    "min_feature_mm": 0.8
+  },
+  "operations": [
+    "cut",
+    "kiss_cut"
+  ],
+  "holders": [
+    "generic.holder-b",
+    "maker.adaptive-b"
+  ],
+  "parameters": {
+    "force": {
+      "type": "number",
+      "unit": "gf",
+      "min": 50,
+      "max": 4000,
+      "default": 350
+    },
+    "speed": {
+      "type": "number",
+      "unit": "mm/s",
+      "min": 5,
+      "max": 400,
+      "default": 100
+    },
+    "passes": {
+      "type": "integer",
+      "min": 1,
+      "max": 30,
+      "default": 1
+    },
+    "overcut": {
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 5,
+      "default": 1.0
+    },
+    "tab_count": {
+      "type": "integer",
+      "min": 0,
+      "max": 50,
+      "default": 0
+    },
+    "tab_width_mm": {
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 10,
+      "default": 1.0
+    },
+    "lead_in_mm": {
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 20,
+      "default": 0
+    },
+    "lead_out_mm": {
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 20,
+      "default": 0
+    },
+    "force_ramp": {
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    }
+  },
+  "render": {
+    "effect": "cut"
+  }
+}

@@ -1,0 +1,18 @@
+[package]
+name = "cricut-harness"
+description = "Hardware test harness for cricut-gcode: staged probes and test cuts against a real machine."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+cricut-gcode = { workspace = true, features = ["runtime"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal", "time"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true

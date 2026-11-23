@@ -1,0 +1,18 @@
+# Build output (also holds hardware-harness wire logs under target/harness/)
+/target
+
+# Personal Claude Code overrides
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+/host-tests/target
+
+# Python-generated files
+__pycache__/
+*.py[cod]

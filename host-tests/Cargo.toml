@@ -1,0 +1,17 @@
+# End-to-end tests of the built plugin through the Plotter Studio host's runner.
+#
+# This is its own workspace because it needs a checkout of the host application next to this
+# repository (`../plotter-studio`). Run it with `cargo test --manifest-path host-tests/Cargo.toml`.
+[workspace]
+
+[package]
+name = "cricut-host-tests"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[dev-dependencies]
+cricut-gcode = { path = "../crates/cricut-gcode" }
+ps-device = { path = "../../plotter-studio/crates/ps-device" }
+tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }

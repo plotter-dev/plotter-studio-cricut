@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "version": "1.0.1",
+  "license": "CC0-1.0",
+  "id": "cricut.foil-transfer",
+  "name": "Foil transfer tool",
+  "family": "foil",
+  "drive": "fixed_point",
+  "geometry": {
+    "tip_width_mm": 0.5
+  },
+  "operations": [
+    "foil",
+    "foil_fill"
+  ],
+  "holders": [
+    "generic.holder-b",
+    "maker.adaptive-b"
+  ],
+  "parameters": {
+    "force": {
+      "type": "number",
+      "unit": "gf",
+      "min": 50,
+      "max": 500,
+      "default": 220
+    },
+    "speed": {
+      "type": "number",
+      "unit": "mm/s",
+      "min": 5,
+      "max": 200,
+      "default": 60
+    }
+  },
+  "render": {
+    "effect": "foil"
+  }
+}

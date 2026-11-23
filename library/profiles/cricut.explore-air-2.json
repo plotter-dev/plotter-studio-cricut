@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "version": "1.0.1",
+  "license": "CC0-1.0",
+  "id": "cricut.explore-air-2",
+  "name": "Cricut Explore Air 2",
+  "work_area": {
+    "width_mm": 292,
+    "height_mm": 597
+  },
+  "mat_sizes": [
+    {
+      "name": "12x12 in",
+      "width_mm": 304.8,
+      "height_mm": 304.8
+    },
+    {
+      "name": "12x24 in",
+      "width_mm": 304.8,
+      "height_mm": 609.6
+    }
+  ],
+  "origin": "top_left",
+  "keep_outs": [],
+  "holders": [
+    {
+      "id": "generic.holder-a",
+      "label": "Clamp A",
+      "accepts": [
+        "pen",
+        "scoring"
+      ]
+    },
+    {
+      "id": "generic.holder-b",
+      "label": "Clamp B",
+      "accepts": [
+        "blade",
+        "foil"
+      ]
+    }
+  ],
+  "force": {
+    "min_gf": 0,
+    "max_gf": 400,
+    "units_per_gf": 1.0
+  },
+  "max_speed_mm_s": 101.6,
+  "max_travel_speed_mm_s": 76.2,
+  "max_accel_mm_s2": 335,
+  "accel_by_speed": [[25.4, 55], [50.8, 115], [76.2, 190], [88.9, 255], [101.6, 335]],
+  "vector_ms_by_speed": [[25.4, 12.5], [50.8, 12.5], [76.2, 10.0], [88.9, 9.09], [101.6, 8.33]],
+  "fill_turn_step_deg": 15,
+  "junction_deviation_mm": 0.05,
+  "tool_up_ms": 40,
+  "tool_down_ms": 60,
+  "arcs": true,
+  "tangential_axis": false,
+  "heated": false,
+  "gcode": {
+    "dialect": "ps-gcode/1",
+    "arcs": true,
+    "chord_tolerance_mm": 0.01
+  }
+}

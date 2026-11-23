@@ -1,0 +1,9 @@
+{
+  "id": "plotter-studio.cricut-explore-air-2",
+  "name": "Cricut Explore Air 2",
+  "version": "0.1.0",
+  "filters": [
+    { "transport": "serial" }
+  ],
+  "internet_hosts": []
+}

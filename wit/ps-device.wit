@@ -1,0 +1,207 @@
+// The Plotter Studio device plugin contract (TDD 9.8).
+//
+// Calls are plain blocking functions: the host runs each plugin on its own thread, so a plugin
+// that waits in `read` never stalls the app, and plugins need no async runtime. (The TDD sketch
+// marks them `async`; that needs the still-experimental component-model async support on both
+// sides, and gives a plugin nothing a dedicated thread does not.)
+//
+// The host implements `transport`, `discovery` and `host`; the plugin implements `driver`. The host
+// finds no machine by itself: with no plugin installed nothing can be found or connected to. A
+// plugin's `discover` looks at the system's buses through `discovery`, which lends it the lists
+// its manifest filters allow, and names the devices it wants offered; `identify` then confirms
+// the model by talking to one. Plugins translate
+// G-code but never parse it: every `gcode-line` carries the exact text from the .gcode file and the
+// host's parsed form, so two plugins can never disagree about what a line means. Optional fields
+// mean "not reported". Connection state is not part of the plugin's status: the host owns the
+// transports, so it knows when a cable is pulled even if the plugin is stuck.
+
+package plotter:device@1.0.0;
+
+interface types {
+  enum connection-state { disconnected, connecting, connected, reconnecting, lost }
+  enum power-state { off, standby, on, unknown }
+  enum transport-kind { usb, serial, ble, tcp, udp, websocket, http }
+  enum alert-level { info, warning, error }
+
+  record device-error { code: string, message: string, recoverable: bool }
+  record user-action { id: u32, message: string }
+  record holder-status { holder: string, tool-detected: option<string> }
+  record job-progress { lines-done: u64, lines-total: u64, current-op: option<string> }
+  record alert { level: alert-level, code: string, message: string }
+
+  variant machine-state {
+    idle,
+    busy,
+    running-job,
+    paused,
+    waiting-for-user(user-action),
+    fault(device-error),
+    updating-firmware,
+    unknown,
+  }
+
+  record status {
+    power: power-state,
+    state: machine-state,
+    progress: option<job-progress>,
+    mat-loaded: option<bool>,
+    holders: list<holder-status>,
+    position-mm: option<tuple<f64, f64>>,
+    temperature-c: option<f32>,
+    battery-percent: option<u8>,
+    alerts: list<alert>,
+  }
+
+  record device-info {
+    model: string,
+    serial-number: option<string>,
+    firmware: option<string>,
+    profile-id: option<string>,
+    transport: transport-kind,
+  }
+
+  record capabilities {
+    pause: bool,
+    resume: bool,
+    cancel: bool,
+    jog: bool,
+    home: bool,
+    load-mat: bool,
+    unload-mat: bool,
+    tool-detection: bool,
+    reports-position: bool,
+    reports-temperature: bool,
+    max-inflight-lines: u32,
+  }
+
+  record tool-entry { slot: u8, tool: string, holder: string }
+  record job-header { job-id: string, mat-index: u32, profile-id: string, tools: list<tool-entry> }
+
+  // Coordinates are integer micrometres, exactly as written in the file.
+  record point-um { x: s64, y: s64 }
+  record line-step { to: point-um, a-mdeg: option<s64>, feed-mm-min: u32 }
+  record arc-step { to: point-um, centre-offset: point-um, ccw: bool, feed-mm-min: u32 }
+  record temperature-step { celsius: s32, wait: bool }
+
+  // Mirrors ps-gcode's parsed commands for the ps-gcode/1 dialect.
+  variant step {
+    comment(string),
+    units(bool),
+    absolute,
+    tool-change(u8),
+    pause(string),
+    temperature(temperature-step),
+    dwell(u32),
+    tool-down(u32),
+    tool-up,
+    travel(point-um),
+    line(line-step),
+    arc(arc-step),
+    end,
+  }
+
+  record gcode-line { number: u32, text: string, step: step }
+
+  variant event {
+    status-changed(status),
+    user-action-required(user-action),
+    job-finished,
+    fault(device-error),
+  }
+}
+
+// Provided by the host. Network transports are scoped by the host: a tcp, udp or websocket
+// connection is opened only to the approved machine's address and declared ports, HTTP paths are
+// relative to that machine, and a plugin reaches an internet host only through open-declared-host.
+// Plugins never see raw sockets or name resolution.
+interface transport {
+  use types.{transport-kind};
+
+  record io-error { kind: string, message: string }
+  record http-request { method: string, path: string, headers: list<tuple<string, string>>, body: list<u8> }
+  record http-response { status: u16, headers: list<tuple<string, string>>, body: list<u8> }
+
+  resource connection {
+    kind: func() -> transport-kind;
+    write: func(data: list<u8>) -> result<_, io-error>;
+    read: func(max-bytes: u32, timeout-ms: u32) -> result<list<u8>, io-error>;
+    ble-write: func(characteristic: string, data: list<u8>) -> result<_, io-error>;
+    ble-notify: func(characteristic: string, timeout-ms: u32) -> result<list<u8>, io-error>;
+    send-datagram: func(data: list<u8>) -> result<_, io-error>;
+    recv-datagram: func(timeout-ms: u32) -> result<list<u8>, io-error>;
+    http: func(req: http-request) -> result<http-response, io-error>;
+  }
+
+  // Internet hosts named in the manifest and allowed by the user; anything else is refused.
+  open-declared-host: func(name: string, kind: transport-kind) -> result<connection, io-error>;
+}
+
+// Provided by the host: the system's buses, as far as the plugin's manifest filters allow. A
+// bus the manifest does not name returns an empty list and is not touched (no radio is powered,
+// no socket opened). A listen time is capped by the host.
+interface discovery {
+  use types.{transport-kind};
+
+  record candidate {
+    // The host's id for it; a plugin hands ids back from `discover`.
+    id: string,
+    name: string,
+    transport: transport-kind,
+    usb: option<tuple<u16, u16>>,
+    address: option<string>,
+    serial: option<string>,
+  }
+
+  list-serial-ports: func() -> list<candidate>;
+  list-usb: func() -> list<candidate>;
+  scan-ble: func(listen-ms: u32) -> list<candidate>;
+  // A plain service type such as `_plotter._tcp.local.`, on the local network only.
+  browse-mdns: func(service-type: string, listen-ms: u32) -> list<candidate>;
+}
+
+// Provided by the host.
+interface host {
+  log: func(level: u8, message: string);
+  now-ms: func() -> u64;
+  sleep: func(ms: u32);
+  // A small per-plugin key-value store, kept in the library folder.
+  kv-get: func(key: string) -> option<list<u8>>;
+  kv-set: func(key: string, value: list<u8>);
+}
+
+// Provided by the plugin.
+interface driver {
+  use types.{device-info, capabilities, status, event, job-header, gcode-line, device-error};
+  use transport.{connection};
+
+  // Names the devices to offer, by the ids `discovery` gave. An id the host did not show the plugin
+  // in this call is ignored, so a plugin can narrow what it saw but never invent a device.
+  discover: func() -> list<string>;
+
+  identify: func(conn: borrow<connection>) -> option<device-info>;
+
+  resource session {
+    constructor(conn: connection);
+    info: func() -> device-info;
+    capabilities: func() -> capabilities;
+    status: func() -> status;
+    wait-event: func(timeout-ms: u32) -> option<event>;
+    begin-job: func(header: job-header) -> result<_, device-error>;
+    // Returns how many lines were accepted, from the front of the batch.
+    send: func(lines: list<gcode-line>) -> result<u32, device-error>;
+    end-job: func() -> result<_, device-error>;
+    pause: func() -> result<_, device-error>;
+    resume: func() -> result<_, device-error>;
+    cancel: func() -> result<_, device-error>;
+    user-action-done: func(id: u32) -> result<_, device-error>;
+    jog: func(dx-mm: f64, dy-mm: f64) -> result<_, device-error>;
+    disconnect: func();
+  }
+}
+
+world device-plugin {
+  import transport;
+  import discovery;
+  import host;
+  export driver;
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "id": "cricut.maker-3",
+  "name": "Cricut Maker 3",
+  "work_area": {
+    "width_mm": 292,
+    "height_mm": 597
+  },
+  "mat_sizes": [
+    {
+      "name": "12x12 in",
+      "width_mm": 304.8,
+      "height_mm": 304.8
+    },
+    {
+      "name": "12x24 in",
+      "width_mm": 304.8,
+      "height_mm": 609.6
+    }
+  ],
+  "origin": "top_left",
+  "keep_outs": [],
+  "holders": [
+    {
+      "id": "maker.adaptive-a",
+      "label": "Adaptive tool system A",
+      "accepts": [
+        "pen",
+        "scoring"
+      ]
+    },
+    {
+      "id": "maker.adaptive-b",
+      "label": "Adaptive tool system B",
+      "accepts": [
+        "blade",
+        "foil"
+      ]
+    }
+  ],
+  "force": {
+    "min_gf": 0,
+    "max_gf": 4000,
+    "units_per_gf": 1.0
+  },
+  "max_speed_mm_s": 600,
+  "max_accel_mm_s2": 5000,
+  "junction_deviation_mm": 0.05,
+  "tool_up_ms": 40,
+  "tool_down_ms": 60,
+  "arcs": true,
+  "tangential_axis": true,
+  "heated": false,
+  "gcode": {
+    "dialect": "ps-gcode/1",
+    "arcs": true,
+    "chord_tolerance_mm": 0.01
+  },
+  "roll": {
+    "width_mm": 330.2,
+    "max_length_mm": 3657.6
+  }
+}

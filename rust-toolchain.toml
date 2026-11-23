@@ -1,0 +1,6 @@
+# Pin the toolchain so local builds, CI and every contributor see the same compiler and lints.
+# Bump deliberately (and fix any new clippy lints in the same change).
+[toolchain]
+channel = "1.100.0"
+components = ["rustfmt", "clippy", "rust-analyzer"]
+profile = "minimal"

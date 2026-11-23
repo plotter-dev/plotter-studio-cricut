@@ -1,0 +1,10 @@
+[alias]
+lint = "clippy --workspace --all-targets -- -D warnings"
+fmt-check = "fmt --all --check"
+test-all = "test --workspace"
+docs = "doc --workspace --no-deps"
+# Hardware harness (moves a real machine!) — see .claude/skills/hardware-test.
+harness = "run -p cricut-harness --"
+
+# Repository chores: `cargo xtask package` builds the plugin and writes target/packages/cricut.psdevice.
+xtask = "run -q -p xtask --"
